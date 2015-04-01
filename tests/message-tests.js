@@ -1,7 +1,8 @@
 var chai    = require('chai'),
     expect  = chai.expect,
     assert  = chai.assert,
-    Message = require('../lib/message');
+    _       = require('lodash'),
+    Message = require('../lib/message')(_);
 
 describe('Message', function() {
 
@@ -53,14 +54,14 @@ describe('Message', function() {
       'xhr': 'xhr'
     };
 
-    Message(null, req, res, function(err, message) {
+    Message.generate(null, req, res, function(err, message) {
       assert.equal(JSON.stringify(msg), message, 'All param from req should have been used');
       done();
     })
   });
 
   it('should not include values from blacklist', function(done) {
-    Message({blacklist: ['protocol']}, req, res, function(err, message) {
+    Message.generate({blacklist: ['protocol']}, req, res, function(err, message) {
 
       var msg = JSON.parse(message);
 
@@ -72,7 +73,7 @@ describe('Message', function() {
   });
 
   it('should include values from whitelist', function(done) {
-    Message({whitelist: ['extra-param']}, req, res, function(err, message) {
+    Message.generate({whitelist: ['extra-param']}, req, res, function(err, message) {
 
       var msg = JSON.parse(message);
 
@@ -84,7 +85,7 @@ describe('Message', function() {
   });
 
   it('should not include values from blacklist AND include values from whitelist', function(done) {
-    Message({whitelist: ['extra-param'], blacklist: ['protocol']}, req, res, function(err, message) {
+    Message.generate({whitelist: ['extra-param'], blacklist: ['protocol']}, req, res, function(err, message) {
 
       var msg = JSON.parse(message);
 

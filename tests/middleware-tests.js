@@ -10,7 +10,7 @@ describe('Middleware', function() {
 
   var noop = function() {};
 
-  var middleware, kafkaStub;
+  var Middleware, middleware, kafkaStub, MessageStub, PublishStub;
 
   var options;
   var req;
@@ -18,7 +18,17 @@ describe('Middleware', function() {
 
   beforeEach(function() {
     kafkaStub = {};
-    middleware = proxyquire('../lib/middleware', { 'kafka-node': kafkaStub});//, './message': messageStub, './publish': publishStub });
+    MessageStub = {
+      generate: function(options, req, res, cb) {cb()}
+    };
+    PublishStub = {
+      generate: function(producer, options) {
+        return function(message, key, cb) {cb()};
+      }
+    };
+
+    Middleware = proxyquire('../index', { 'kafka-node': kafkaStub });
+    middleware = require('../lib/middleware')(kafkaStub, MessageStub, PublishStub, _);
 
     options = {
       producer: {
@@ -29,7 +39,7 @@ describe('Middleware', function() {
       },
       client: {
         url: '1.2.3.4',
-        producer_id: 'producer-id'
+        client_id: 'client-id'
       }
     };
 
@@ -51,9 +61,9 @@ describe('Middleware', function() {
 
     it('should connect to provided server url', function(done) {
 
-      kafkaStub.Client = function(url, pid, options) {
+      kafkaStub.Client = function(url, cid, options) {
         assert.equal(url, '1.2.3.4', 'url should be 1.2.3.4');
-        assert.equal(pid, 'producer-id', 'pid should be producer-id');
+        assert.equal(cid, 'client-id', 'cid should be client-id');
         done();
       };
 
@@ -82,6 +92,9 @@ describe('Middleware', function() {
 
     it('should use options method to generate message if provided', function(done) {
 
+      kafkaStub.Client = noop;
+      kafkaStub.HighLevelProducer = noop;
+
       options = _.defaults({
         message: function(request, response, callback) {
           assert.equal(req, request, 'req object is the same as sent');
@@ -94,12 +107,20 @@ describe('Middleware', function() {
 
     });
 
-    // How to properly mock Message module?
-    // it('should use Message module to generate message if options function is not provided', function(done) {
-    //
-    //   middleware(options)(req, res, noop);
-    //
-    // });
+    it('should use Message module to generate message if options function is not provided', function(done) {
+
+      kafkaStub.Client = noop;
+      kafkaStub.HighLevelProducer = noop;
+
+      MessageStub.generate = function(options, request, response, callback) {
+        assert.equal(req, request, 'req object is the same as sent');
+        assert.equal(res, response, 'res object is the same as sent');
+        done();
+      };
+
+      middleware(options)(req, res, noop);
+
+    });
 
   });
 
@@ -134,18 +155,39 @@ describe('Middleware', function() {
     });
 
 
-    // How to properly mock Publish module?
-    // it('should send message with key, if key function is provided', function(done) {
-    //
-    //   middleware(options)(req, res, noop);
-    //
-    // });
+    it('should send message with key, if key function is provided', function(done) {
 
-    // it('should NOT send message with key, if key function is provided', function(done) {
-    //
-    //   middleware(options)(req, res, noop);
-    //
-    // });
+      var mykey = '1234'
+      options = _.defaults({
+        key: function(request, response, callback) {
+          callback(null, mykey)
+        }
+      }, options);
+
+      PublishStub.generate = function(producer, options) {
+        return function(message, key, cb) {
+          assert.equal(key, mykey);
+          done();
+        };
+      }
+
+      middleware(options)(req, res, noop);
+
+    });
+
+    it('should NOT send message with key, if key function is NOT provided', function(done) {
+
+      PublishStub.generate = function(producer, options) {
+        return function(message, key, cb) {
+          assert.isTrue(!key);
+          assert.isNotString(key);
+          done();
+        };
+      }
+
+      middleware(options)(req, res, noop);
+
+    });
 
   });
 

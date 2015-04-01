@@ -1,7 +1,8 @@
 var chai    = require('chai'),
     expect  = chai.expect,
     assert  = chai.assert,
-    Publish = require('../lib/publish');
+    kafka = require('kafka-node'),
+    Publish = require('../lib/publish')(kafka);
 
 describe('Publish', function() {
 
@@ -19,7 +20,7 @@ describe('Publish', function() {
       assert.equal(payloads[0].topic, 'my-topic', 'topic is \'my-topic\'');
       done();
     };
-    var publisher = Publish(producer, {topic: 'my-topic'});
+    var publisher = Publish.generate(producer, {topic: 'my-topic'});
 
     publisher('test', null);
   });
@@ -32,7 +33,7 @@ describe('Publish', function() {
       assert.equal(payloads[0].attributes, 1, 'attributes is \'1\'');
       done();
     };
-    var publisher = Publish(producer, {topic: 'my-topic', partition: 2, attributes: 1});
+    var publisher = Publish.generate(producer, {topic: 'my-topic', partition: 2, attributes: 1});
 
     publisher('test', null);
   });
@@ -45,7 +46,7 @@ describe('Publish', function() {
       assert.equal(payloads[0].messages.value, 'test', 'message value is \'test\'');
       done();
     };
-    var publisher = Publish(producer, {topic: 'my-topic', partition: 2, attributes: 1});
+    var publisher = Publish.generate(producer, {topic: 'my-topic', partition: 2, attributes: 1});
 
     publisher('test', 'key');
   });
