@@ -15,7 +15,7 @@ There is a [docker-compose](./DOCKER.md) configured to make tests easier
 
 ## Usage
 
-Use as a middleware to you express app
+Use as a middleware in your express app
 
 ```
 expressProducer = require('express-kafka-producer');
