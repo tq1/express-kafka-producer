@@ -1,5 +1,7 @@
 # Middleware to send Node.js + Express requests direct to Kafka
 
+[![Build Status](https://img.shields.io/travis/felipesabino/express-kafka-producer.svg?style=flat-square)](https://travis-ci.org/felipesabino/express-kafka-producer)
+
 ## Install
 
 add `express-kafka-producer` to you `package.json`
@@ -78,8 +80,8 @@ $ node run test
 Middleware:
 
 - [ ] Add [Zookeeper options](https://github.com/SOHU-Co/kafka-node/#clientconnectionstring-clientid-zkoptions)
-- [ ] Finish tests
-- [ ] Add Travis-CI
+- [x] Finish tests
+- [x] Add Travis-CI
 - [ ] Publish to npm
 
 Example App:

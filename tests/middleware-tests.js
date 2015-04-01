@@ -2,7 +2,7 @@ var _       = require('lodash'),
     chai    = require('chai'),
     expect  = chai.expect,
     assert  = chai.assert,
-    proxyquire =  require('proxyquire');
+    kafka = require('kafka-node');
 
 
 
@@ -10,14 +10,14 @@ describe('Middleware', function() {
 
   var noop = function() {};
 
-  var Middleware, middleware, kafkaStub, MessageStub, PublishStub;
+  var middleware, kafkaStub, MessageStub, PublishStub;
 
   var options;
   var req;
   var res;
 
   beforeEach(function() {
-    kafkaStub = {};
+    kafkaStub = kafka;
     MessageStub = {
       generate: function(options, req, res, cb) {cb()}
     };
@@ -27,7 +27,6 @@ describe('Middleware', function() {
       }
     };
 
-    Middleware = proxyquire('../index', { 'kafka-node': kafkaStub });
     middleware = require('../lib/middleware')(kafkaStub, MessageStub, PublishStub, _);
 
     options = {
