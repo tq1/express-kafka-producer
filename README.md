@@ -52,6 +52,7 @@ key                 | Type      | Description
 `topic` (required)  | `string`  | Topic to send messages to
 `attributes`        | `string`  | Compression attribute. Check [kafka-node docs](https://github.com/SOHU-Co/kafka-node/#sendpayloads-cb-1) for possible values
 `partition`         | `string`  | Partition to send message to
+`batch_size`        | `number`  | Maximum batch size to send messages to kafka. Default: `1000`
 `settings`          | `object`  | Values used to handle producer acks and publish timeouts. Check [kafka node' HighLevelProducer](https://github.com/SOHU-Co/kafka-node/blob/7101c4e1818987f4b6f8cf52c7fd5565c11768db/lib/highLevelProducer.js#L37-L38) for possible values
 
 - `key` (`function`): If provided, it is the function (`function(req, res, callback) {}`) that is called to generate a key for the message before being sent to kafka topic. `callback` expected to be called in the format `callback(error, key)`, where `key` is expected to be a `string`

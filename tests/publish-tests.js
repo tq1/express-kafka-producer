@@ -2,7 +2,8 @@ var chai    = require('chai'),
     expect  = chai.expect,
     assert  = chai.assert,
     kafka = require('kafka-node'),
-    Publish = require('../lib/publish')(kafka);
+    async = require('async'),
+    Publish = require('../lib/publish')(kafka, async);
 
 describe('Publish', function() {
 
@@ -49,5 +50,34 @@ describe('Publish', function() {
     var publisher = Publish.generate(producer, {topic: 'my-topic', partition: 2, attributes: 1});
 
     publisher('test', 'key');
+  });
+
+  it('should send payload in batches', function(done) {
+
+    var batch_size = [500, 1000, 500];
+    var iteractions = 0;
+
+    producer.send = function(payloads, cb) {
+      assert.lengthOf(payloads, batch_size[iteractions], 'payloads`s value has a length of batch_size');
+      if (iteractions < batch_size.length -1) {
+        iteractions++;
+        cb();
+      } else {
+        done();
+      }
+    };
+    var publisher = Publish.generate(producer, {topic: 'my-topic', batch_size: batch_size});
+
+    var send = function(index, timeout) {
+      setTimeout(function() {
+        for (var i = 0; i < batch_size[index]; i++) {
+          publisher('test' + i, null);
+        }
+      }, timeout);
+    };
+
+    send(0, 0);
+    send(1, 500);
+    send(2, 1000);
   });
 });

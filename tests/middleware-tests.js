@@ -2,7 +2,8 @@ var _       = require('lodash'),
     chai    = require('chai'),
     expect  = chai.expect,
     assert  = chai.assert,
-    kafka = require('kafka-node');
+    kafka = require('kafka-node'),
+    async = require('async');
 
 
 
@@ -27,7 +28,7 @@ describe('Middleware', function() {
       }
     };
 
-    middleware = require('../lib/middleware')(kafkaStub, MessageStub, PublishStub, _);
+    middleware = require('../lib/middleware')(kafkaStub, async, _, MessageStub, PublishStub);
 
     options = {
       producer: {
