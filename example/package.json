@@ -1,5 +1,6 @@
 {
   "name": "express-kafka-producer-example",
+  "private": true,
   "version": "0.0.1",
   "description": "An exaple of an express middleware to route requests to kafka",
   "main": "index.js",
