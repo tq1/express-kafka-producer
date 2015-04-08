@@ -11,7 +11,7 @@ var kafka = {
   },
   producer: {
     topic: 'my-node-topic',
-    batch_size: 10,
+    batch_size: 1000,
     // attributes: 1,
     // partition: 1,
     settings: { // https://github.com/SOHU-Co/kafka-node/blob/7101c4e1818987f4b6f8cf52c7fd5565c11768db/lib/highLevelProducer.js#L37-L38
