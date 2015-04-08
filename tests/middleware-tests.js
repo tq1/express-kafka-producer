@@ -139,21 +139,6 @@ describe('Middleware', function() {
 
     });
 
-    it('should continue execution if error happens generating key', function(done) {
-
-      options = _.defaults({
-        key: function(request, response, callback) {
-          callback('error');
-        }
-      }, options);
-
-      middleware(options)(req, res, function() {
-        done()
-      });
-
-    });
-
-
     it('should send message with key, if key function is provided', function(done) {
 
       var mykey = '1234'
@@ -185,6 +170,148 @@ describe('Middleware', function() {
       }
 
       middleware(options)(req, res, noop);
+
+    });
+
+  });
+
+  describe('Error handler', function() {
+
+    it('should call error handler if error is raised when publishing message', function(done) {
+
+      PublishStub.generate = function(producer, options) {
+        return function(message, key, cb) {
+          cb("error");
+        };
+      }
+
+      options = _.defaults({
+        error: function(err, req, res, next) {
+          assert.isFalse(!err);
+          next();
+        }
+      }, options);
+
+      var next = function() {
+        done();
+      }
+
+      middleware(options)(req, res, next);
+
+    });
+
+    it('should continue if error is raised when publishing message and no error handler is provided', function(done) {
+
+      PublishStub.generate = function(producer, options) {
+        return function(message, key, cb) {
+          cb("error");
+        };
+      }
+
+      middleware(options)(req, res, function() {
+        done();
+      });
+
+    });
+
+    it('should call error handler if error is raised by message creation', function(done) {
+
+      MessageStub.generate = function(options, request, response, callback) {
+        callback('error');
+      };
+
+      options = _.defaults({
+        error: function(err, req, res, next) {
+          assert.isFalse(!err);
+          next();
+        }
+      }, options);
+
+      var next = function() {
+        done();
+      }
+
+      middleware(options)(req, res, next);
+
+    });
+
+    it('should continue if error is raised by message creation and no error handler is provided', function(done) {
+
+      MessageStub.generate = function(options, request, response, callback) {
+        callback('error');
+      };
+
+      middleware(options)(req, res, function() {
+        done();
+      });
+
+    });
+
+    it('should call error handler if error is raised by custom message creation', function(done) {
+
+      options = _.defaults({
+        message: function(req, res, cb) {
+          cb('error');
+        },
+        error: function(err, req, res, next) {
+          assert.isFalse(!err);
+          next();
+        }
+      }, options);
+
+      var next = function() {
+        done();
+      }
+
+      middleware(options)(req, res, next);
+
+    });
+
+    it('should continue if error is raised by custom message creation and no error handler is provided', function(done) {
+
+      options = _.defaults({
+        message: function(req, res, cb) {
+          cb('error');
+        }
+      }, options);
+
+      middleware(options)(req, res, function() {
+        done();
+      });
+
+    });
+
+    it('should call error handler if error is raised by custom key creation', function(done) {
+
+      options = _.defaults({
+        key: function(req, res, cb) {
+          cb('error');
+        },
+        error: function(err, req, res, next) {
+          assert.isFalse(!err);
+          next();
+        }
+      }, options);
+
+      var next = function() {
+        done();
+      }
+
+      middleware(options)(req, res, next);
+
+    });
+
+    it('should continue if error is raised by custom key creation and no error handler is provided', function(done) {
+
+      options = _.defaults({
+        key: function(req, res, cb) {
+          cb('error');
+        }
+      }, options);
+
+      middleware(options)(req, res, function() {
+        done();
+      });
 
     });
 
