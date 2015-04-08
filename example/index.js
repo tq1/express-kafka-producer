@@ -30,10 +30,15 @@ app.get('/', expressProducer(kafka), function(req, res) {
   res.json(200, {message: msg});
 });
 
-// creates custom message and key to send to kafka
+// creates custom message and key to send to kafka and default error handler
 app.get('/key/:key', expressProducer(_.defaults({
   key: function(req, res, cb) {
-    cb(null, req.params.key);
+    //raises error if key is 'abc'
+    if (req.params.key === 'abc') {
+      cb('key error, can not be \'abc\'');
+    } else {
+      cb(null, req.params.key);
+    }
   },
   message: function(req, res, cb) {
     cb(null, {
@@ -41,6 +46,9 @@ app.get('/key/:key', expressProducer(_.defaults({
       date: new Date(),
       rnd: Math.random()
     });
+  },
+  error: function(err, req, res, next) {
+    res.send(500, "error sending to kafka: " + err);
   }
 }, kafka)), function(req, res) {
   var msg = 'called after kafka publishing to topic \'' + kafka.producer.topic + '\' with key: ' + req.params.key;
