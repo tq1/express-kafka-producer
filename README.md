@@ -67,6 +67,7 @@ key             | Type                  | Description
 `whitelist`     | `array of string`     | keys to be added to the message before being sent to kafka. Possible vales available at [express docs](http://expressjs.com/4x/api.html#req)
 `blacklist`     | `array of string`     | keys to be excluded to the message before being sent to kafka. Possible vales available at [express docs](http://expressjs.com/4x/api.html#req)
 
+- `error` (`function`): If provided, it is the function (`function(err, req, res, callback) {}`) that is called when any error happens inside the middleware while sending message to kafka, generating message object or after custom callbacks call the callback with an error object. If not provided, any error will be ignored and the next middlewares in the stack will be called normally.
 
 ## Test
 
