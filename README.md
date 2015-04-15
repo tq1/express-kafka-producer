@@ -2,6 +2,8 @@
 
 [![Build Status](https://img.shields.io/travis/felipesabino/express-kafka-producer.svg?style=flat-square)](https://travis-ci.org/felipesabino/express-kafka-producer)
 
+[![NPM](https://nodei.co/npm/express-kafka-producer.png)](https://nodei.co/npm/express-kafka-producer/)
+
 ## Install
 
 add `express-kafka-producer` to you `package.json`
@@ -83,7 +85,7 @@ Middleware:
 - [ ] Add [Zookeeper options](https://github.com/SOHU-Co/kafka-node/#clientconnectionstring-clientid-zkoptions)
 - [x] Finish tests
 - [x] Add Travis-CI
-- [ ] Publish to npm
+- [x] Publish to npm
 
 Example App:
 
