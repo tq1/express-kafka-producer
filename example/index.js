@@ -55,3 +55,16 @@ app.get('/key/:key', expressProducer(_.defaults({
   console.log(msg);
   res.json(200, {message: msg});
 });
+
+// uses batch opions to send messages to kafka
+app.get('/batch/:key', expressProducer(_.defaults({
+  batch: {
+    enabled: true,
+    payload: 100,
+    timeout: 5000
+  }
+}, kafka)), function(req, res) {
+  var msg = 'called after kafka publishing to topic \'' + kafka.producer.topic + '\' with key: ' + req.params.key;
+  console.log(msg);
+  res.json(200, {message: msg});
+});

@@ -71,6 +71,17 @@ key             | Type                  | Description
 
 - `error` (`function`): If provided, it is the function (`function(err, req, res, callback) {}`) that is called when any error happens inside the middleware while sending message to kafka, generating message object or after custom callbacks call the callback with an error object. If not provided, any error will be ignored and the next middlewares in the stack will be called normally.
 
+- `parse_to_json` (`boolean`): Kafka client needs messages (and key, if provided) to be sent as string. Add this options to use `JSON.stringify` for automatic key and messages parsing
+
+- `batch` (`object`): Batching message options. If enabled, each payload sent to kafka will contain an array of messages sent to kafka
+
+key                 | Type      | Description
+------------------- | --------- | ---
+`enabled`           | `boolean` | If batching messages is enabled
+`payload`           | `number`  | Maximum number of messager that will be pilled up before sending it to kafka. Default value is `1000`.
+`timeout`           | `number`  | Time (in ms) between message flushes to kafka. This ensures that messages are sent to kafka after a certain period of time even if the number of messages received is smaller than the `payload`. Default value is `500`ms
+
+
 ## Test
 
 ```
