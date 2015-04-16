@@ -1,6 +1,6 @@
 {
   "name": "express-kafka-producer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "An express middleware to route requests to kafka ",
   "main": "index.js",
   "scripts": {
