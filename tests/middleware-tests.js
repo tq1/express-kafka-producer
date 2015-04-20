@@ -17,7 +17,7 @@ describe('Middleware', function() {
   var res;
 
   beforeEach(function() {
-    kafkaStub = kafka;
+    kafkaStub = _.clone(kafka);
     MessageStub = {
       generate: function(options, req, res, cb) {cb()}
     };
@@ -83,6 +83,21 @@ describe('Middleware', function() {
 
       middleware(options);
 
+    });
+
+    it('should use provided kafka client', function(done) {
+      kafkaStub.Client = function(connectionString) {
+        this.connectionString = 'fake-' + connectionString;
+      }
+      kafkaStub.Client.prototype.on = function(ev, callback) {
+        if (ev === 'ready') {
+          assert.equal(this.connectionString, 'fake-127.0.0.1:9999');
+          done();
+        }
+      }
+      options.client = new kafkaStub.Client('127.0.0.1:9999');
+
+      middleware(options);
     });
 
   });

@@ -40,7 +40,7 @@ app.get('/', expressProducer(kafka), function(req, res) { });
 The options available are
 
 - `verbose` (`boolean`): Enables log to the kafka client, messages being publish and errors, all logs will start with the `> KAFKA MIDDLEWARE` string. Needless to say that it should be `false` in production
-- `client` (`object`): Settings that deal with kafka server connection
+- `client` (`object` or `kafka-node.Client`): Settings that deal with kafka server connection. If a [`kafka-node.Client`](https://github.com/SOHU-Co/kafka-node/blob/master/kafka.js#L5) object is provided, it will used it instead of creating a new connection.
 
 key             | Type         | Description
 --------------- | -----------  | ---
