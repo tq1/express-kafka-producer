@@ -19,7 +19,7 @@
   "dependencies": {
     "kafka-node": "0.2.24",
     "lodash": "~2.2.1",
-    "async-timed-cargo": "0.0.2"
+    "async-timed-cargo": "0.0.3"
   },
   "devDependencies": {
     "chai": "1.10.0",
