@@ -14,6 +14,7 @@ describe('Publish', function() {
     delete producer.send;
   });
 
+
   describe('single messages', function() {
 
     it('should create payload accordingly', function(done) {
@@ -46,6 +47,7 @@ describe('Publish', function() {
 
       producer.send = function(payloads, cb) {
         assert.lengthOf(payloads, 1, 'payloads`s value has a length of 1');
+        assert.equal(payloads[0].partition, 2);
         assert.isString(payloads[0].messages);
         done();
       };
@@ -111,6 +113,7 @@ describe('Publish', function() {
 
       producer.send = function(payloads, cb) {
         assert.lengthOf(payloads, 1, 'payloads`s value has a length of 1');
+        assert.isArray(payloads[0].messages);
         assert.lengthOf(payloads[0].messages, 2, 'payload message`s value has a length of 2');
         assert.equal(payloads[0].messages[0], 'test', 'message[0] is \'test\'');
         assert.equal(payloads[0].messages[1], 'test 2', 'message[1] is \'test 2\'');
