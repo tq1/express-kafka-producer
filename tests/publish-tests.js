@@ -105,6 +105,28 @@ describe('Publish', function() {
       publisher({"message key": "message value"}, {'key key': 'key value'});
     });
 
+    it('should use partitioner if provided', function(done) {
+
+      var partition = 123;
+
+      producer.send = function(payloads, cb) {
+        assert.lengthOf(payloads, 1, 'payloads`s value has a length of 1');
+        assert.equal(payloads[0].partition, partition);
+        done();
+      };
+
+      var partitioner = {
+        partition:function(key, numberOfPartitions) {
+          assert.equal(key, 'xyz');
+          return partition;
+        }
+      }
+
+      var publisher = Publish.generate(producer, {topic: 'my-topic', partitioner: partitioner});
+
+      publisher('test', 'xyz');
+    });
+
   });
 
   describe('batching messages', function() {
