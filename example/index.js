@@ -11,7 +11,7 @@ var kafka = {
     client_id: process.env.KAFKA_PRODUCER_ID || 'kafka-node-producer'
   },
   producer: {
-    topic: 'my-node-topic-test',
+    topic: 'my-node-topic',
     attributes: 1,
     // partition: 1,
     settings: { // https://github.com/SOHU-Co/kafka-node/blob/7101c4e1818987f4b6f8cf52c7fd5565c11768db/lib/highLevelProducer.js#L37-L38
