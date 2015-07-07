@@ -10,14 +10,15 @@ describe('Middleware', function() {
 
   var noop = function() {};
 
-  var middleware, kafkaStub, MessageStub, PublishStub;
+  var middleware, kafkaStub, MessageStub, PublishStub, DefaultPartitionerStub, kafkaStubClientReturn;
 
   var options;
   var req;
   var res;
 
   beforeEach(function() {
-    kafkaStub = _.clone(kafka);
+
+    kafkaStub = _.defaults(kafka);
     MessageStub = {
       generate: function(options, req, res, cb) {cb()}
     };
@@ -26,8 +27,22 @@ describe('Middleware', function() {
         return function(message, key, cb) {cb()};
       }
     };
+    DefaultPartitionerStub = {
+      partition: function(key, numberOfPartitions) {
+        return 1234;
+      }
+    };
+    kafkaStubClientReturn = {
+      topicPartitions: {},
+      on: function(ev, cb) {
+        return cb();
+      },
+      refreshMetadata: function(topics, cb) {
+        return cb();
+      }
+    };
 
-    middleware = require('../lib/middleware')(kafkaStub, MessageStub, PublishStub, _);
+    middleware = require('../lib/middleware')(kafkaStub, MessageStub, PublishStub, DefaultPartitionerStub, _);
 
     options = {
       producer: {
@@ -61,9 +76,12 @@ describe('Middleware', function() {
     it('should connect to provided server url', function(done) {
 
       kafkaStub.Client = function(url, cid, options) {
+
         assert.equal(url, '1.2.3.4', 'url should be 1.2.3.4');
         assert.equal(cid, 'client-id', 'cid should be client-id');
         done();
+
+        return kafkaStubClientReturn;
       };
 
       kafkaStub.HighLevelProducer = noop;
@@ -74,7 +92,9 @@ describe('Middleware', function() {
 
     it('should create producer with proper settings', function(done) {
 
-      kafkaStub.Client = noop;
+      kafkaStub.Client = function() {
+        return kafkaStubClientReturn;
+      };
 
       kafkaStub.HighLevelProducer = function(client, params) {
         assert.equal(params, options.producer.settings, 'settings sent to producer are invalid');
@@ -86,15 +106,23 @@ describe('Middleware', function() {
     });
 
     it('should use provided kafka client', function(done) {
+
+      var called = false;
       kafkaStub.Client = function(connectionString) {
+        var self = this;
         this.connectionString = 'fake-' + connectionString;
+        this.on = function(ev, callback) {
+          if (ev === 'ready' && !called) {
+            assert.equal(self.connectionString, 'fake-127.0.0.1:9999');
+            called = true;
+            // multiple calls to event 'ready' should not fail in this case
+            done();
+          }
+        };
+        this.refreshMetadata = kafkaStubClientReturn.refreshMetadata;
       }
-      kafkaStub.Client.prototype.on = function(ev, callback) {
-        if (ev === 'ready') {
-          assert.equal(this.connectionString, 'fake-127.0.0.1:9999');
-          done();
-        }
-      }
+      kafkaStub.HighLevelProducer = noop;
+
       options.client = new kafkaStub.Client('127.0.0.1:9999');
 
       middleware(options);
@@ -106,7 +134,9 @@ describe('Middleware', function() {
 
     it('should use options method to generate message if provided', function(done) {
 
-      kafkaStub.Client = noop;
+      kafkaStub.Client = function() {
+        return kafkaStubClientReturn;
+      };
       kafkaStub.HighLevelProducer = noop;
 
       options = _.defaults({
@@ -123,7 +153,9 @@ describe('Middleware', function() {
 
     it('should use Message module to generate message if options function is not provided', function(done) {
 
-      kafkaStub.Client = noop;
+      kafkaStub.Client = function() {
+        return kafkaStubClientReturn;
+      };
       kafkaStub.HighLevelProducer = noop;
 
       MessageStub.generate = function(options, request, response, callback) {
@@ -163,14 +195,20 @@ describe('Middleware', function() {
         }
       }, options);
 
+      kafkaStub.Client = function() {
+        return kafkaStubClientReturn;
+      };
+      kafkaStub.HighLevelProducer = noop;
+
       PublishStub.generate = function(producer, options) {
         return function(message, key, cb) {
           assert.equal(key, mykey);
           done();
         };
       }
-
-      middleware(options)(req, res, noop);
+      // setTimeout(function() {
+        middleware(options)(req, res, noop);
+      // }, 100);
 
     });
 
@@ -187,6 +225,48 @@ describe('Middleware', function() {
       middleware(options)(req, res, noop);
 
     });
+
+    it('should send message with key using default partitioner', function(done) {
+      var mykey = 'my_key'
+      options = _.defaults({
+        key: function(request, response, callback) {
+          callback(null, mykey)
+        }
+      }, options);
+
+
+
+      PublishStub.generate = function(producer, options) {
+        return function(message, key, cb) {
+          assert.equal(options.partitioner, DefaultPartitionerStub);
+          done();
+        };
+      }
+
+      middleware(options)(req, res, noop);
+    });
+
+    it('should send message with key using custom partitioner if provided', function(done) {
+      var mykey = 'my_key'
+      options = _.defaults({
+        key: function(request, response, callback) {
+          callback(null, mykey)
+        },
+        partitioner: function(key, numberOfPartitions) {
+          return 10;
+        }
+      }, options);
+
+      PublishStub.generate = function(producer, options) {
+        return function(message, key, cb) {
+          assert.equal(options.partitioner, options.partitioner);
+          done();
+        };
+      }
+
+      middleware(options)(req, res, noop);
+    });
+
 
   });
 

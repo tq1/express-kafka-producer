@@ -61,7 +61,7 @@ app.get('/batch/:key', expressProducer(_.defaults({
   batch: {
     enabled: true,
     payload: 100,
-    timeout: 5000
+    timeout: 500
   }
 }, kafka)), function(req, res) {
   var msg = 'called after kafka publishing to topic \'' + kafka.producer.topic + '\' with key: ' + req.params.key;
