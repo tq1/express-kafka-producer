@@ -51,10 +51,18 @@ key             | Type         | Description
 
 key                 | Type      | Description
 ------------------- | --------- | ---
-`topic` (required)  | `string`  | Topic to send messages to
-`attributes`        | `string`  | Compression attribute. Check [kafka-node docs](https://github.com/SOHU-Co/kafka-node/#sendpayloads-cb-1) for possible values
-`partition`         | `string`  | Partition to send message to
-`settings`          | `object`  | Values used to handle producer acks and publish timeouts. Check [kafka node' HighLevelProducer](https://github.com/SOHU-Co/kafka-node/blob/7101c4e1818987f4b6f8cf52c7fd5565c11768db/lib/highLevelProducer.js#L37-L38) for possible values
+`topic` (required)  | `string`      | Topic to send messages to
+`attributes`        | `string`      | Compression attribute. Check [kafka-node docs](https://github.com/SOHU-Co/kafka-node/#sendpayloads-cb-1) for possible values
+`settings`          | `object`      | Values used to handle producer acks and publish timeouts. Check [kafka node' HighLevelProducer](https://github.com/SOHU-Co/kafka-node/blob/7101c4e1818987f4b6f8cf52c7fd5565c11768db/lib/highLevelProducer.js#L37-L38) for possible values
+`partition`         | `string`      | Partition to send message to
+`partitioner`       | `Partitioner` | `Partioner` object to be used (description bellow). Default for keyed messages will be [lib/lib/default-partitioner.js](lib/default-partitioner.js) which get a fixed partition number for key if partition number never changes, making [log compaction](https://cwiki.apache.org/confluence/display/KAFKA/Log+Compaction) easier to use.
+
+`Partitioner` (object):
+
+key                 | Type                                             | Description
+------------------- | ---------                                        | ---
+`partition`         | `function(key, numberOfPartitions)` -> `Number`  | Object function called before publishing message and should return an absolute `Number` that will be used as the partition number (so it should NOT be greater than the param `numberOfPartitions` received)
+
 
 - `key` (`function`): If provided, it is the function (`function(req, res, callback) {}`) that is called to generate a key for the message before being sent to kafka topic. `callback` expected to be called in the format `callback(error, key)`, where `key` is expected to be a `string`
 
