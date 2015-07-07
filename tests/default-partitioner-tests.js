@@ -46,6 +46,17 @@ describe('Default Partitioner', function() {
 
       });
 
+      it('should return0 if 0 partitions are available', function() {
+
+        var key = "my:random:key";
+        var numberOfPartitions = 0;
+        var partition = DefaultPartitioner.partition(key, numberOfPartitions);
+
+        assert.isNumber(partition);
+        assert.equal(partition, 0)
+
+      });
+
     });
 
 

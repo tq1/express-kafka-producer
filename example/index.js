@@ -11,7 +11,7 @@ var kafka = {
     client_id: process.env.KAFKA_PRODUCER_ID || 'kafka-node-producer'
   },
   producer: {
-    topic: 'my-node-topic',
+    topic: 'my-node-topic-test',
     attributes: 1,
     // partition: 1,
     settings: { // https://github.com/SOHU-Co/kafka-node/blob/7101c4e1818987f4b6f8cf52c7fd5565c11768db/lib/highLevelProducer.js#L37-L38
@@ -61,7 +61,7 @@ app.get('/batch/:key', expressProducer(_.defaults({
   batch: {
     enabled: true,
     payload: 100,
-    timeout: 5000
+    timeout: 500
   }
 }, kafka)), function(req, res) {
   var msg = 'called after kafka publishing to topic \'' + kafka.producer.topic + '\' with key: ' + req.params.key;

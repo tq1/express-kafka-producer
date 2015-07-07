@@ -23,9 +23,24 @@ describe('Publish', function() {
         assert.lengthOf(payloads, 1, 'payloads`s value has a length of 1');
         assert.equal(payloads[0].messages, 'test', 'message is \'test\'');
         assert.equal(payloads[0].topic, 'my-topic', 'topic is \'my-topic\'');
+        assert.isUndefined(payloads[0].partition, 'partition should not be provided with no key')
         done();
       };
       var publisher = Publish.generate(producer, {topic: 'my-topic'});
+
+      publisher('test', null);
+    });
+
+    it('should create payload with  partition if default partition was provided and no key was provided with message', function(done) {
+
+      producer.send = function(payloads, cb) {
+        assert.lengthOf(payloads, 1, 'payloads`s value has a length of 1');
+        assert.equal(payloads[0].messages, 'test', 'message is \'test\'');
+        assert.equal(payloads[0].topic, 'my-topic', 'topic is \'my-topic\'');
+        assert.equal(payloads[0].partition, 1, 'partition should be equal one provided in options');
+        done();
+      };
+      var publisher = Publish.generate(producer, {topic: 'my-topic', partition: 1});
 
       publisher('test', null);
     });
