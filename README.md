@@ -1,6 +1,6 @@
 # Middleware to send Node.js + Express requests direct to Kafka
 
-[![Build Status](https://img.shields.io/travis/felipesabino/express-kafka-producer.svg?style=flat-square)](https://travis-ci.org/felipesabino/express-kafka-producer)
+[![Build Status](https://img.shields.io/travis/tq1/express-kafka-producer.svg?style=flat-square)](https://travis-ci.org/tq1/express-kafka-producer)
 
 [![NPM](https://nodei.co/npm/express-kafka-producer.png)](https://nodei.co/npm/express-kafka-producer/)
 
